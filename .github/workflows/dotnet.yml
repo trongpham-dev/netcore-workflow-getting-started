@@ -1,0 +1,33 @@
+name: .NET
+
+#define an event to trigger our work flow
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:  #name of job .. build .net app
+
+    runs-on: ubuntu-latest #which is used to run the job
+
+    steps:
+    - uses: actions/checkout@v3 #download the source code for the build machine or runner to run job
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2 #define an action which is available in marketplace
+      with:
+        dotnet-version: 5.0.x #specify version of donet
+    - name: Restore dependencies #setup .net dependencies 
+      run: dotnet restore #cmd to set up dependencies
+    - name: Build #after install all dependencies we have a task call Build to build our .net app
+      run: dotnet build --no-restore #cmd to build .net app
+    - name: Test #
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run:  dotnet publish -c Release -o dotnetcorewebapp
+    - name: Upload Artifacts #upload publish files as an artifacts to the build pipeline then we can use it to deploy
+      uses: actions/upload-artifact@v2
+      with:
+          name: my-artifact
+          path: "./dotnetcorewebapp"
